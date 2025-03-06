@@ -175,3 +175,4 @@ cython_debug/
 
 # PyTorch
 *.pth
+*.zip
