@@ -18,7 +18,14 @@ def softmax(x):
 
 
 def main(model_path: str, image_path: str):
-    ort_session = onnxruntime.InferenceSession(model_path)
+    providers = [
+        'CUDAExecutionProvider',
+        'MIGraphXExecutionProvider',
+        'ROCMExecutionProvider',
+        'OpenVINOExecutionProvider',
+        'CPUExecutionProvider',
+    ]
+    ort_session = onnxruntime.InferenceSession(model_path, providers=providers)
     img = Image.open(image_path).convert("RGB")
 
     tensor_image = transform(img).unsqueeze(0).numpy()
