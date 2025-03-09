@@ -66,8 +66,18 @@ class OrientationDetection:
         # (i.e. after “unrotating” the predictions).
         accumulated = {a: [] for a in self.all_angles}
 
+        base_pred = None
         for rotation in self.all_angles:
             angles = self.get_angles(numpy_image)
+
+            best_angle = max(angles, key=angles.get)
+            if base_pred is None:
+                # save the baseline best angle for the unrotated image
+                base_pred = best_angle
+            else:
+                # calculate what the best angle should be after this rotation
+                expected_angle = (base_pred + rotation) % 360
+                assert best_angle == expected_angle
 
             # adjust each predicted angle to the absolute orientation (relative to the original image).
             # the conversion is: absolute_angle = (predicted_angle - rotation) mod 360.
