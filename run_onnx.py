@@ -85,9 +85,6 @@ class OrientationDetection:
             result[angle] = overall_avg
         return result
 
-    def quick(self, image_path: str):
-        return self.get_angles(self.to_array(self.read_image(image_path)))
-
 
 def main(model_path: str, image_path: str):
     od = OrientationDetection(model_path=model_path)
