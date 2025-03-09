@@ -61,13 +61,38 @@ class OrientationDetection:
         angles = {angle: score for angle, score in zip(self.all_angles, probabilities)}
         return angles
 
+    def get_angles_avg(self, numpy_image: np.ndarray) -> Mapping[int, float]:
+        # create a dictionary to accumulate scores for each absolute orientation
+        # (i.e. after “unrotating” the predictions).
+        accumulated = {a: [] for a in self.all_angles}
+
+        for rotation in self.all_angles:
+            angles = self.get_angles(numpy_image)
+
+            # adjust each predicted angle to the absolute orientation (relative to the original image).
+            # the conversion is: absolute_angle = (predicted_angle - rotation) mod 360.
+            for pred_angle, score in angles.items():
+                absolute_angle = (pred_angle - rotation) % 360
+                accumulated[absolute_angle].append(score)
+
+            # instead of using img.transpose(Image.Transpose.ROTATE_90)
+            # rotate the transformed and proccessed image
+            numpy_image = np.rot90(numpy_image, k=1, axes=(2, 3))
+
+        result = dict()
+        for angle in sorted(accumulated.keys()):
+            overall_avg = sum(accumulated[angle]) / len(accumulated[angle])
+            result[angle] = overall_avg
+        return result
+
     def quick(self, image_path: str):
         return self.get_angles(self.to_array(self.read_image(image_path)))
 
 
 def main(model_path: str, image_path: str):
     od = OrientationDetection(model_path=model_path)
-    angles = od.quick(image_path)
+    img_array = od.to_array(od.read_image(image_path))
+    angles = od.get_angles_avg(img_array)
 
     print("Orientation probabilities:")
     for angle, prob in angles.items():
