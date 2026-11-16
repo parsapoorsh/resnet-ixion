@@ -1,3 +1,5 @@
+# THIS IS LEGACY PROJECT, SUPERSEDED BY<br>https://github.com/parsapoorsh/ixion 
+
 ##  Image Orientation Detection Using ResNet
 
 
